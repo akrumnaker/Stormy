@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="colors">
+        <item>#FF8DD3FF</item>  // light blue       (clear - day)
+        <item>#ff6c4985</item>  // purple gray      (clear - night)
+        <item>#FF84A784</item>  // dark blue/gray   (rain)
+        <item>#FFDCDCDC</item>  // light gray       (snow)
+        <item>#DDCBD7D8</item>  // light blue gray  (sleet)
+        <item>#FFC7E1E9</item>  // light blue       (wind)
+        <item>#FFA6B3B8</item>  // gray blue        (fog)
+        <item>#FFB5B5B5</item>  // gray             (cloudy)
+        <item>#FFb4e1ed</item>  // light blue       (partly cloudy - day)
+        <item>#FF3A2C4D</item>  // dark purple      (partly cloudy - night)
+    </string-array>
+</resources>
