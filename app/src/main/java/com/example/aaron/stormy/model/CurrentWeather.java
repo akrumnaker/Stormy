@@ -18,7 +18,8 @@ public class CurrentWeather {
     private double mApparentTemperature;
     private double mWindSpeed;
     private int mUVIndex;
-    private int colorId;
+    private int mColorId;
+    private double mWindDirection;
 
     public String getmLocation() {
         return mLocation;
@@ -42,47 +43,47 @@ public class CurrentWeather {
 
         if(mIcon.equals("clear-day")){
             iconId = R.drawable.clear_day;
-            colorId = 0;
+            mColorId = 0;
         }
         else if(mIcon.equals("clear-night")){
             iconId = R.drawable.clear_night;
-            colorId = 1;
+            mColorId = 1;
         }
         else if (mIcon.equals("rain")) {
             iconId = R.drawable.rain;
-            colorId = 2;
+            mColorId = 2;
         }
         else if (mIcon.equals("snow")) {
             iconId = R.drawable.snow;
-            colorId = 3;
+            mColorId = 3;
         }
         else if (mIcon.equals("sleet")) {
             iconId = R.drawable.sleet;
-            colorId = 4;
+            mColorId = 4;
         }
         else if (mIcon.equals("wind")) {
             iconId = R.drawable.wind;
-            colorId = 5;
+            mColorId = 5;
         }
         else if (mIcon.equals("fog")) {
             iconId = R.drawable.fog;
-            colorId = 6;
+            mColorId = 6;
         }
         else if (mIcon.equals("cloudy")) {
             iconId = R.drawable.cloudy;
-            colorId = 7;
+            mColorId = 7;
         }
         else if (mIcon.equals("partly-cloudy-day")) {
             iconId = R.drawable.partly_cloudy;
-            colorId = 8;
+            mColorId = 8;
         }
         else if (mIcon.equals("partly-cloudy-night")) {
             iconId = R.drawable.cloudy_night;
-            colorId = 9;
+            mColorId = 9;
         }
         else{
             iconId = R.drawable.partly_cloudy;
-            colorId = 8;
+            mColorId = 8;
         }
 
         return iconId;
@@ -172,6 +173,16 @@ public class CurrentWeather {
     }
 
     public int getColorId() {
-        return colorId;
+        return mColorId;
+    }
+
+    public String getWindDirection() {
+        String[] dirs = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+        int index = (int) Math.round((mWindDirection % 360) / 45);
+        return dirs[index];
+    }
+
+    public void setWindDirection(double windDirection) {
+        mWindDirection = windDirection;
     }
 }

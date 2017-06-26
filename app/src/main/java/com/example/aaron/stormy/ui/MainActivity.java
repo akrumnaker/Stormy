@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.apparentTempValue) TextView mApparentTempValue;
     @BindView(R.id.windValue) TextView mWindValue;
     @BindView(R.id.uvIndexValue) TextView mUVIndexValue;
+    @BindView(R.id.windDirectionValue) TextView mWindDirectionValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements
                 else{
                     // Use the text provided in the EditText View to retrieve the new latlng
                     String address = mLocationEditText.getText().toString();
-                    Address newAddress = setLatLngFromStringAddress(address);
+                    Address newAddress = getLatLngFromStringAddress(address);
                     if(newAddress != null) {
                         mLatitude = newAddress.getLatitude();
                         mLongitude = newAddress.getLongitude();
@@ -177,6 +178,12 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * This method will attempt to connect the network. If successful,
+     * it will retreive the JSON data from the Dark Sky api
+     * @param latitude
+     * @param longitude
+     */
     private void getForecast(double latitude, double longitude) {
         String apiKey = "90bd41bb2c697265aa5e510e80ef1bed";
         String forecastURL = "https://api.darksky.net/forecast/" + apiKey +
@@ -257,6 +264,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * updateDisplay() will update each of the Views with the appropriate
+     * data contained in the CurrentWeather object.
+     */
     private void updateDisplay() {
         String address = getStringAddressFromLatLng();
         if(address != null){
@@ -272,9 +283,17 @@ public class MainActivity extends AppCompatActivity implements
         mIconImageView.setImageDrawable(drawable);
         mApparentTempValue.setText(mCurrentWeather.getApparentTemperature() + "\u2109");
         mWindValue.setText(mCurrentWeather.getWindSpeed() + " mph");
+        mWindDirectionValue.setText(mCurrentWeather.getWindDirection());
         mUVIndexValue.setText(mCurrentWeather.getUVIndex() + "");
     }
 
+    /**
+     * This method will parse the String jsonData which contains the JSON data
+     * retrieved from the Dark Sky api
+     * @param jsonData
+     * @return currentWeather
+     * @throws JSONException
+     */
     private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
         JSONObject forecast = new JSONObject(jsonData);
         String timeZone = forecast.getString("timezone");
@@ -293,12 +312,17 @@ public class MainActivity extends AppCompatActivity implements
         currentWeather.setApparentTemperature(currently.getDouble("apparentTemperature"));
         currentWeather.setWindSpeed(currently.getDouble("windSpeed"));
         currentWeather.setUVIndex(currently.getInt("uvIndex"));
+        currentWeather.setWindDirection(currently.getDouble("windBearing"));
 
         Log.d(TAG, currentWeather.getFormattedTime());
 
         return currentWeather;
     }
 
+    /**
+     * This method will check if the network is connected
+     * @return isAvailable
+     */
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
@@ -309,21 +333,37 @@ public class MainActivity extends AppCompatActivity implements
         return isAvailable;
     }
 
+    /**
+     * Display dialog regarding an error
+     */
     private void alertUserAboutError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getFragmentManager(), "error_dialog");
     }
 
+    /**
+     * Display dialog regarding the network availability
+     */
     private void alertUserAboutNetworkAvailability(){
         NetworkDialogFragment dialog = new NetworkDialogFragment();
         dialog.show(getFragmentManager(), "network_dialog");
     }
 
+    /**
+     * Display dialog regarding the location service availability
+     */
     private void alertUserAboutLocationServiceAvailability(){
         LocationDialogFragment dialog = new LocationDialogFragment();
         dialog.show(getFragmentManager(), "location_dialog");
     }
 
+    /**
+     * This method checks if the proper permissions are granted for the app,
+     * and if the permissions are not granted, it will display a dialog requesting them.
+     * If so, the app will attempt to retrieve the last known location of the
+     * device.
+     * @param bundle
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Location services connected.");
@@ -343,12 +383,24 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * This method retrieves the longitude and latitude of the Location
+     * object passed in as a parameter
+     * @param location
+     */
     private void handleNewLocation(Location location) {
         Log.d(TAG, location.toString());
         mLatitude = location.getLatitude();
         mLongitude = location.getLongitude();
     }
 
+    /**
+     * This method will use the mLatitude and mLongitude values
+     * to retrieve the address from the associated location using
+     * the Geocoder. If successful, the address string will be set to
+     * the city and state/country if available.
+     * @return addressString or null
+     */
     private String getStringAddressFromLatLng() {
         try {
             String city = "";
@@ -382,7 +434,13 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private Address setLatLngFromStringAddress(String address){
+    /**
+     * This method will return an Address using the Geocoder object
+     * mGeocoder with the String address parameter.
+     * @param address
+     * @return addresses.get(0) or null
+     */
+    private Address getLatLngFromStringAddress(String address){
         try {
             List<Address> addresses = mGeocoder.getFromLocationName(address, 1);
             if(addresses.isEmpty()){
