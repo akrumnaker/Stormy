@@ -5,7 +5,7 @@
                                              android:id="@+id/current_weather_layout"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             android:background="#FFb4e1ed"
+                                             android:background="@drawable/bg_clear_day"
                                              tools:context="com.example.aaron.stormy.ui.MainActivity"
                                              tools:layout_editor_absoluteX="0dp"
                                              tools:layout_editor_absoluteY="25dp">

@@ -2,7 +2,6 @@ package com.example.aaron.stormy.ui;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -10,13 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.aaron.stormy.R;
 import com.example.aaron.stormy.model.HourlyWeather;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,8 +39,9 @@ public class Next12Hours extends AppCompatActivity {
         returnTextView = (TextView) findViewById(R.id.returnTextView);
 
         Intent intent = getIntent();
-        int color = intent.getIntExtra(getString(R.string.bkg_color), 8);
-        mHourlyWeatherLayout.setBackgroundColor(color);
+        int backgroundId = intent.getIntExtra(getString(R.string.bkg_color), 8);
+        Drawable background = ContextCompat.getDrawable(this, backgroundId);
+        mHourlyWeatherLayout.setBackground(background);
         jsonData = intent.getStringExtra(getString(R.string.json_data));
 
         returnTextView.setOnClickListener(new View.OnClickListener() {

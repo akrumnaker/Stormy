@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.example.aaron.stormy.R;
 import com.example.aaron.stormy.model.DailyWeather;
-import com.example.aaron.stormy.model.HourlyWeather;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,12 +34,14 @@ public class Next7Days extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next7_days);
+
         mDailyWeatherLayout = (ConstraintLayout) findViewById(R.id.daily_weather_layout);
         returnTextView = (TextView) findViewById(R.id.returnTextView);
 
         Intent intent = getIntent();
-        int color = intent.getIntExtra(getString(R.string.bkg_color), 8);
-        mDailyWeatherLayout.setBackgroundColor(color);
+        int backgroundId = intent.getIntExtra(getString(R.string.bkg_color), 8);
+        Drawable background = ContextCompat.getDrawable(this, backgroundId);
+        mDailyWeatherLayout.setBackground(background);
         jsonData = intent.getStringExtra(getString(R.string.json_data));
 
         returnTextView.setOnClickListener(new View.OnClickListener() {

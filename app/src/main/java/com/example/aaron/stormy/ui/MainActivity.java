@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements
         next7HoursTextView = (TextView) findViewById(R.id.next7DaysButton);
         next12HoursTextView = (TextView) findViewById(R.id.next12HoursButton);
         Resources res = getResources();
-        mColorBook = new ColorBook(res.getStringArray(R.array.colors));
+        mColorBook = new ColorBook(this, res.getStringArray(R.array.backgrounds));
 
         mProgressBar.setVisibility(View.INVISIBLE);
         mGeocoder = new Geocoder(this);
@@ -117,19 +117,7 @@ public class MainActivity extends AppCompatActivity implements
                     getForecast(mLatitude, mLongitude);
                 }
                 else{
-                    // Use the text provided in the EditText View to retrieve the new latlng
-                    String address = mLocationEditText.getText().toString();
-                    Address newAddress = getLatLngFromStringAddress(address);
-                    if(newAddress != null) {
-                        mLatitude = newAddress.getLatitude();
-                        mLongitude = newAddress.getLongitude();
-                        getForecast(mLatitude, mLongitude);
-                    }
-                    else{
-                        Toast.makeText(MainActivity.this, "Invalid Address provided. Please enter a valid address.", Toast.LENGTH_LONG);
-                        mLocationEditText.setText("");
-                        mLocationEditText.requestFocus();
-                    }
+                    getForecastFromProvidedLocation();
                 }
             }
         });
@@ -138,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if(canShowNext12Hours) {
-                    int color = mColorBook.getColor(mCurrentWeather.getColorId());
+                    int color = mColorBook.getBackgroudId(mCurrentWeather.getColorId());
                     Intent intent = new Intent(MainActivity.this, Next12Hours.class);
                     intent.putExtra(getString(R.string.json_data), jsonData);
                     intent.putExtra(getString(R.string.bkg_color), color);
@@ -152,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if(canShowNext7Days){
-                    int color = mColorBook.getColor(mCurrentWeather.getColorId());
+                    int color = mColorBook.getBackgroudId(mCurrentWeather.getColorId());
                     Intent intent = new Intent(MainActivity.this, Next7Days.class);
                     intent.putExtra(getString(R.string.json_data), jsonData);
                     intent.putExtra(getString(R.string.bkg_color), color);
@@ -162,6 +150,22 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         Log.d(TAG, "Main UI code is running");
+    }
+
+    private void getForecastFromProvidedLocation() {
+        // Use the text provided in the EditText View to retrieve the new latlng
+        String address = mLocationEditText.getText().toString();
+        Address newAddress = getLatLngFromStringAddress(address);
+        if(newAddress != null) {
+            mLatitude = newAddress.getLatitude();
+            mLongitude = newAddress.getLongitude();
+            getForecast(mLatitude, mLongitude);
+        }
+        else{
+            Toast.makeText(MainActivity.this, "Invalid Address provided. Please enter a valid address.", Toast.LENGTH_LONG);
+            mLocationEditText.setText("");
+            mLocationEditText.requestFocus();
+        }
     }
 
     @Override
@@ -273,7 +277,6 @@ public class MainActivity extends AppCompatActivity implements
         if(address != null){
             mLocationLabel.setText(address);
         }
-        mCurrentWeatherLayout.setBackgroundColor(mColorBook.getColor(mCurrentWeather.getColorId()));
         mTemperatureLabel.setText(mCurrentWeather.getmTemperature() + "\u2109");
         mTimeLabel.setText("As of " + mCurrentWeather.getFormattedTime() + ", it is presently");
         mHumidityValue.setText(mCurrentWeather.getmHumidity() + "%");
@@ -285,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements
         mWindValue.setText(mCurrentWeather.getWindSpeed() + " mph");
         mWindDirectionValue.setText(mCurrentWeather.getWindDirection());
         mUVIndexValue.setText(mCurrentWeather.getUVIndex() + "");
+        Drawable background = ContextCompat.getDrawable(this, mColorBook.getBackgroudId(mCurrentWeather.getColorId()));
+        mCurrentWeatherLayout.setBackground(background);
     }
 
     /**
@@ -377,8 +382,12 @@ public class MainActivity extends AppCompatActivity implements
 
             }
             else{
-                handleNewLocation(location);
-                getForecast(mLatitude, mLongitude);
+                if(mLocationEditText.getText().toString().isEmpty()) {
+                    handleNewLocation(location);
+                    getForecast(mLatitude, mLongitude);
+                }else{
+                    getForecastFromProvidedLocation();
+                }
             }
         }
     }
