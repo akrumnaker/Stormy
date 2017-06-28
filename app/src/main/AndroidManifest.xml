@@ -29,10 +29,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.Next12Hours"
+            android:name=".ui.HourlyForecast"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ui.Next7Days">
+        <activity android:name=".ui.DailyForecast">
         </activity>
     </application>
 

@@ -1,4 +1,6 @@
-package com.example.aaron.stormy.model;
+package com.example.aaron.stormy.weather;
+
+import android.util.Log;
 
 import com.example.aaron.stormy.R;
 
@@ -6,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class CurrentWeather {
+public class Current {
     private String mLocation;
     private String mIcon;
     private long mTime;
@@ -179,7 +181,8 @@ public class CurrentWeather {
     public String getWindDirection() {
         String[] dirs = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
         int index = (int) Math.round((mWindDirection % 360) / 45);
-        return dirs[index];
+        Log.i("WIND DIRECTION INDEX", "index is: " + index);
+        return dirs[index - 1];
     }
 
     public void setWindDirection(double windDirection) {

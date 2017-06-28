@@ -9,5 +9,7 @@
     <string name="location_dialog_title">Location Unavailable</string>
     <string name="json_data">JSON_DATA</string>
     <string name="bkg_color">COLOR</string>
+    <string name="no_daily_forecast_data">There is no daily forecast data.</string>
+    <string name="no_hourly_forecast_data">There is no hourly forecast data</string>
 
 </resources>

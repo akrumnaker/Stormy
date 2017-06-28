@@ -21,22 +21,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.aaron.stormy.AlertDialogFragment;
-import com.example.aaron.stormy.LocationDialogFragment;
-import com.example.aaron.stormy.NetworkDialogFragment;
 import com.example.aaron.stormy.R;
-import com.example.aaron.stormy.model.ColorBook;
-import com.example.aaron.stormy.model.CurrentWeather;
+import com.example.aaron.stormy.weather.ColorBook;
+import com.example.aaron.stormy.weather.Current;
+import com.example.aaron.stormy.weather.Day;
+import com.example.aaron.stormy.weather.Forecast;
+import com.example.aaron.stormy.weather.Hour;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,11 +57,13 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
+    public static final String DAILY_FORECAST = "DAILY_FORECAST";
+    public static final String HOURLY_FORECAST = "HOURLY_FORECAST";
     public static final String TAG = MainActivity.class.getSimpleName();
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
+    private Forecast mForecast;
     private ColorBook mColorBook;
-    private CurrentWeather mCurrentWeather;
     private String jsonData;
     private boolean canShowNext12Hours = false;
     private boolean canShowNext7Days = false;
@@ -68,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private Geocoder mGeocoder;
 
-    private TextView next12HoursTextView;
-    private TextView next7HoursTextView;
+    private Button hourlyForecastButton;
+    private Button dailyForecastButton;
 
     @BindView(R.id.current_weather_layout) ConstraintLayout mCurrentWeatherLayout;
     @BindView(R.id.locationEditText) EditText mLocationEditText;
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(MainActivity.this);
-        next7HoursTextView = (TextView) findViewById(R.id.next7DaysButton);
-        next12HoursTextView = (TextView) findViewById(R.id.next12HoursButton);
+        dailyForecastButton = (Button) findViewById(R.id.next7DaysButton);
+        hourlyForecastButton = (Button) findViewById(R.id.next12HoursButton);
         Resources res = getResources();
         mColorBook = new ColorBook(this, res.getStringArray(R.array.backgrounds));
 
@@ -122,13 +126,14 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        next12HoursTextView.setOnClickListener(new View.OnClickListener() {
+        hourlyForecastButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(canShowNext12Hours) {
-                    int color = mColorBook.getBackgroudId(mCurrentWeather.getColorId());
-                    Intent intent = new Intent(MainActivity.this, Next12Hours.class);
-                    intent.putExtra(getString(R.string.json_data), jsonData);
+                    Current current = mForecast.getCurrentForecast();
+                    int color = mColorBook.getBackgroudId(current.getColorId());
+                    Intent intent = new Intent(MainActivity.this, HourlyForecast.class);
+                    intent.putExtra(HOURLY_FORECAST, mForecast.getHourlyForecast());
                     intent.putExtra(getString(R.string.bkg_color), color);
                     startActivity(intent);
                 }
@@ -136,13 +141,14 @@ public class MainActivity extends AppCompatActivity implements
         });
 
 
-        next7HoursTextView.setOnClickListener(new View.OnClickListener() {
+        dailyForecastButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(canShowNext7Days){
-                    int color = mColorBook.getBackgroudId(mCurrentWeather.getColorId());
-                    Intent intent = new Intent(MainActivity.this, Next7Days.class);
-                    intent.putExtra(getString(R.string.json_data), jsonData);
+                    Current current = mForecast.getCurrentForecast();
+                    int color = mColorBook.getBackgroudId(current.getColorId());
+                    Intent intent = new Intent(MainActivity.this, DailyForecast.class);
+                    intent.putExtra(DAILY_FORECAST, mForecast.getDailyForecast());
                     intent.putExtra(getString(R.string.bkg_color), color);
                     startActivity(intent);
                 }
@@ -230,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements
                         if (response.isSuccessful()) {
                             canShowNext12Hours = true;
                             canShowNext7Days = true;
-                            mCurrentWeather = getCurrentDetails(jsonData);
+                            mForecast = parseForecastDetails(jsonData);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -257,6 +263,64 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    private Forecast parseForecastDetails(String jsonData) throws JSONException {
+        Forecast forecast = new Forecast();
+        forecast.setCurrentForecast(getCurrentDetails(jsonData));
+        forecast.setHourlyForecast(getHourlyForecast(jsonData));
+        forecast.setDailyForecast(getDailyForecast(jsonData));
+        return forecast;
+    }
+
+    private Day[] getDailyForecast(String jsonData) throws JSONException {
+        JSONObject forecast = new JSONObject(jsonData);
+        String timezone = forecast.getString("timezone");
+        JSONObject daily = forecast.getJSONObject("daily");
+        JSONArray data = daily.getJSONArray("data");
+
+        Day[] days = new Day[data.length()];
+
+        for(int i = 0; i < data.length(); i++){
+            JSONObject jsonDay = data.getJSONObject(i);
+            Day day = new Day();
+
+            day.setSummary(jsonDay.getString("summary"));
+            day.setTime(jsonDay.getLong("time"));
+            day.setIcon(jsonDay.getString("icon"));
+            day.setTimeZone(timezone);
+            day.setHighTemperature(jsonDay.getDouble("temperatureMax"));
+            day.setLowTemperature(jsonDay.getDouble("temperatureMin"));
+            day.setPrecipChance(jsonDay.getDouble("precipProbability"));
+
+            days[i] = day;
+        }
+
+        return days;
+    }
+
+    private Hour[] getHourlyForecast(String jsonData) throws JSONException {
+        JSONObject forecast = new JSONObject(jsonData);
+        String timezone = forecast.getString("timezone");
+        JSONObject hourly = forecast.getJSONObject("hourly");
+        JSONArray data = hourly.getJSONArray("data");
+
+        Hour[] hours = new Hour[data.length()];
+
+        for(int i = 0; i < data.length(); i++){
+            JSONObject jsonHour = data.getJSONObject(i);
+            Hour hour = new Hour();
+
+            hour.setTimeZone(timezone);
+            hour.setTime(jsonHour.getLong("time"));
+            hour.setTemperature(jsonHour.getDouble("temperature"));
+            hour.setSummary(jsonHour.getString("summary"));
+            hour.setIcon(jsonHour.getString("icon"));
+
+            hours[i] = hour;
+        }
+
+        return hours;
+    }
+
     private void toggleRefresh() {
         if(mProgressBar.getVisibility() == View.INVISIBLE) {
             mProgressBar.setVisibility(View.VISIBLE);
@@ -270,25 +334,26 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * updateDisplay() will update each of the Views with the appropriate
-     * data contained in the CurrentWeather object.
+     * data contained in the Current object.
      */
     private void updateDisplay() {
         String address = getStringAddressFromLatLng();
         if(address != null){
             mLocationLabel.setText(address);
         }
-        mTemperatureLabel.setText(mCurrentWeather.getmTemperature() + "\u2109");
-        mTimeLabel.setText("As of " + mCurrentWeather.getFormattedTime() + ", it is presently");
-        mHumidityValue.setText(mCurrentWeather.getmHumidity() + "%");
-        mPrecipValue.setText(mCurrentWeather.getmPrecipChance() + "%");
-        mSummaryLabel.setText(mCurrentWeather.getmSummary());
-        Drawable drawable = ContextCompat.getDrawable(this, mCurrentWeather.getIconId());
+        Current current = mForecast.getCurrentForecast();
+        mTemperatureLabel.setText(current.getmTemperature() + "\u2109");
+        mTimeLabel.setText("As of " + current.getFormattedTime() + ", it is presently");
+        mHumidityValue.setText(current.getmHumidity() + "%");
+        mPrecipValue.setText(current.getmPrecipChance() + "%");
+        mSummaryLabel.setText(current.getmSummary());
+        Drawable drawable = ContextCompat.getDrawable(this, current.getIconId());
         mIconImageView.setImageDrawable(drawable);
-        mApparentTempValue.setText(mCurrentWeather.getApparentTemperature() + "\u2109");
-        mWindValue.setText(mCurrentWeather.getWindSpeed() + " mph");
-        mWindDirectionValue.setText(mCurrentWeather.getWindDirection());
-        mUVIndexValue.setText(mCurrentWeather.getUVIndex() + "");
-        Drawable background = ContextCompat.getDrawable(this, mColorBook.getBackgroudId(mCurrentWeather.getColorId()));
+        mApparentTempValue.setText(current.getApparentTemperature() + "\u2109");
+        mWindValue.setText(current.getWindSpeed() + " mph");
+        mWindDirectionValue.setText(current.getWindDirection());
+        mUVIndexValue.setText(current.getUVIndex() + "");
+        Drawable background = ContextCompat.getDrawable(this, mColorBook.getBackgroudId(current.getColorId()));
         mCurrentWeatherLayout.setBackground(background);
     }
 
@@ -299,29 +364,29 @@ public class MainActivity extends AppCompatActivity implements
      * @return currentWeather
      * @throws JSONException
      */
-    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+    private Current getCurrentDetails(String jsonData) throws JSONException {
         JSONObject forecast = new JSONObject(jsonData);
         String timeZone = forecast.getString("timezone");
         Log.i(TAG, "Forecast TimeZone from JSON: " + timeZone);
 
         JSONObject currently = forecast.getJSONObject("currently");
 
-        CurrentWeather currentWeather = new CurrentWeather();
-        currentWeather.setTimeZone(timeZone);
-        currentWeather.setmIcon(currently.getString("icon"));
-        currentWeather.setmTime(currently.getLong("time"));
-        currentWeather.setmTemperature(currently.getDouble("temperature"));
-        currentWeather.setmHumidity(currently.getDouble("humidity"));
-        currentWeather.setmPrecipChance(currently.getDouble("precipProbability"));
-        currentWeather.setmSummary(currently.getString("summary"));
-        currentWeather.setApparentTemperature(currently.getDouble("apparentTemperature"));
-        currentWeather.setWindSpeed(currently.getDouble("windSpeed"));
-        currentWeather.setUVIndex(currently.getInt("uvIndex"));
-        currentWeather.setWindDirection(currently.getDouble("windBearing"));
+        Current current = new Current();
+        current.setTimeZone(timeZone);
+        current.setmIcon(currently.getString("icon"));
+        current.setmTime(currently.getLong("time"));
+        current.setmTemperature(currently.getDouble("temperature"));
+        current.setmHumidity(currently.getDouble("humidity"));
+        current.setmPrecipChance(currently.getDouble("precipProbability"));
+        current.setmSummary(currently.getString("summary"));
+        current.setApparentTemperature(currently.getDouble("apparentTemperature"));
+        current.setWindSpeed(currently.getDouble("windSpeed"));
+        current.setUVIndex(currently.getInt("uvIndex"));
+        current.setWindDirection(currently.getDouble("windBearing"));
 
-        Log.d(TAG, currentWeather.getFormattedTime());
+        Log.d(TAG, current.getFormattedTime());
 
-        return currentWeather;
+        return current;
     }
 
     /**

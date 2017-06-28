@@ -1,8 +1,7 @@
-package com.example.aaron.stormy.model;
+package com.example.aaron.stormy.weather;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 
 
 public class ColorBook {

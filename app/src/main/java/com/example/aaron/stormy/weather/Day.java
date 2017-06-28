@@ -1,4 +1,7 @@
-package com.example.aaron.stormy.model;
+package com.example.aaron.stormy.weather;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.example.aaron.stormy.R;
 
@@ -6,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class DailyWeather {
+public class Day implements Parcelable{
     private String mIcon;
     private long mTime;
     private double mLowTemperature;
@@ -24,51 +27,14 @@ public class DailyWeather {
     }
 
     public int getIconId(){
-        // clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
-        int iconId = R.drawable.clear_day;
-
-        if(mIcon.equals("clear-day")){
-            iconId = R.drawable.clear_day;
-        }
-        else if(mIcon.equals("clear-night")){
-            iconId = R.drawable.clear_night;
-        }
-        else if (mIcon.equals("rain")) {
-            iconId = R.drawable.rain;
-        }
-        else if (mIcon.equals("snow")) {
-            iconId = R.drawable.snow;
-        }
-        else if (mIcon.equals("sleet")) {
-            iconId = R.drawable.sleet;
-        }
-        else if (mIcon.equals("wind")) {
-            iconId = R.drawable.wind;
-        }
-        else if (mIcon.equals("fog")) {
-            iconId = R.drawable.fog;
-        }
-        else if (mIcon.equals("cloudy")) {
-            iconId = R.drawable.cloudy;
-        }
-        else if (mIcon.equals("partly-cloudy-day")) {
-            iconId = R.drawable.partly_cloudy;
-        }
-        else if (mIcon.equals("partly-cloudy-night")) {
-            iconId = R.drawable.cloudy_night;
-        }
-        else{
-            iconId = R.drawable.partly_cloudy;
-        }
-
-        return iconId;
+        return Forecast.getIconId(mIcon);
     }
 
     public long getTime() {
         return mTime;
     }
 
-    public String getFormattedTime(){
+    public String getDayOfWeek(){
         SimpleDateFormat formatter = new SimpleDateFormat("EEEE\nd MMMM");
         formatter.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
         Date dateTime = new Date(getTime() * 1000);
@@ -121,4 +87,44 @@ public class DailyWeather {
     public void setSummary(String summary) {
         mSummary = summary;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mTime);
+        dest.writeString(mSummary);
+        dest.writeDouble(mHighTemperature);
+        dest.writeDouble(mLowTemperature);
+        dest.writeString(mIcon);
+        dest.writeString(mTimeZone);
+        dest.writeDouble(mPrecipChance);
+    }
+
+    private Day(Parcel in){
+        mTime = in.readLong();
+        mSummary = in.readString();
+        mHighTemperature = in.readDouble();
+        mLowTemperature = in.readDouble();
+        mIcon = in.readString();
+        mTimeZone = in.readString();
+        mPrecipChance = in.readDouble();
+    }
+
+    public Day(){}
+
+    public static final Creator<Day> CREATOR = new Creator<Day>() {
+        @Override
+        public Day createFromParcel(Parcel source) {
+            return new Day(source);
+        }
+
+        @Override
+        public Day[] newArray(int size) {
+            return new Day[size];
+        }
+    };
 }

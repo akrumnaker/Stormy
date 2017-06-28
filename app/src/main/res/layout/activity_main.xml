@@ -29,8 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="56dp"
         android:text="..."
@@ -45,8 +45,6 @@
         android:id="@+id/locationLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
         android:layout_marginTop="16dp"
         android:text="N/A, N/A"
         android:textColor="@android:color/white"
@@ -60,22 +58,24 @@
         android:id="@+id/iconImageView"
         android:layout_width="37dp"
         android:layout_height="39dp"
-        android:layout_marginBottom="0dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/locationLabel"
         app:layout_constraintLeft_toRightOf="@+id/locationLabel"
         app:layout_constraintTop_toTopOf="@+id/locationLabel"
-        app:srcCompat="@drawable/clear_day"/>
+        app:srcCompat="@drawable/clear_day"
+        android:layout_marginStart="8dp"/>
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="27dp"
         android:orientation="horizontal"
+        android:weightSum="1"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
 
-            android:layout_weight="1"
+            android:layout_weight=".33"
             android:orientation="vertical">
 
             <TextView
@@ -110,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
 
-            android:layout_weight="1"
+            android:layout_weight="0.44"
             android:orientation="vertical">
 
             <TextView
@@ -137,7 +137,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight=".33"
             android:orientation="vertical"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="8dp">
@@ -166,16 +166,17 @@
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/next7DaysButton"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -272,45 +273,25 @@
         app:layout_constraintTop_toBottomOf="@+id/locationLabel"
         />
 
-    <TextView
-        android:id="@+id/next12HoursButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:clickable="true"
-        android:text="Next 12 Hours..."
-        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
-
     <ImageView
         android:id="@+id/refreshImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/locationEditText"
         app:layout_constraintLeft_toRightOf="@+id/locationEditText"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/locationEditText"
-        app:srcCompat="@drawable/refresh"/>
+        app:srcCompat="@drawable/refresh"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/refreshImageView"
         app:layout_constraintLeft_toLeftOf="@+id/refreshImageView"
         app:layout_constraintRight_toRightOf="@+id/refreshImageView"
@@ -330,33 +311,65 @@
         app:layout_constraintBottom_toTopOf="@+id/timeLabel"
         app:layout_constraintRight_toLeftOf="@+id/progressBar"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"/>
-
-    <TextView
-        android:id="@+id/next7DaysButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:text="Next 7 Days..."
-        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/next12HoursButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginEnd="17dp"/>
 
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="192dp"
         android:layout_height="26dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="0dp"
+        android:background="#40ffffff"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/next12HoursButton"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/ic_dark_sky"/>
+        app:srcCompat="@mipmap/ic_dark_sky_logo"/>
+
+    <LinearLayout
+        android:layout_width="344dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/imageView3"
+        android:id="@+id/linearLayout3"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <Button
+            android:id="@+id/next7DaysButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="#40ffffff"
+            android:clickable="true"
+            android:text="DAILY"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textSize="18sp"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:layout_editor_absoluteY="467dp"/>
+
+        <Button
+            android:id="@+id/next12HoursButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="#40ffffff"
+            android:clickable="true"
+            android:text="HOURLY"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            tools:layout_editor_absoluteX="204dp"
+            tools:layout_editor_absoluteY="505dp"/>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
