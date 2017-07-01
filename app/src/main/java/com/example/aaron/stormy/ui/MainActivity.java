@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
+    public static int BACKGROUND_ID = 0;
     public static final String DAILY_FORECAST = "DAILY_FORECAST";
     public static final String HOURLY_FORECAST = "HOURLY_FORECAST";
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -134,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements
                     int color = mColorBook.getBackgroudId(current.getColorId());
                     Intent intent = new Intent(MainActivity.this, HourlyForecast.class);
                     intent.putExtra(HOURLY_FORECAST, mForecast.getHourlyForecast());
-                    intent.putExtra(getString(R.string.bkg_color), color);
                     startActivity(intent);
                 }
             }
@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements
                     int color = mColorBook.getBackgroudId(current.getColorId());
                     Intent intent = new Intent(MainActivity.this, DailyForecast.class);
                     intent.putExtra(DAILY_FORECAST, mForecast.getDailyForecast());
-                    intent.putExtra(getString(R.string.bkg_color), color);
                     startActivity(intent);
                 }
             }
@@ -290,6 +289,10 @@ public class MainActivity extends AppCompatActivity implements
             day.setHighTemperature(jsonDay.getDouble("temperatureMax"));
             day.setLowTemperature(jsonDay.getDouble("temperatureMin"));
             day.setPrecipChance(jsonDay.getDouble("precipProbability"));
+            day.setUVIndex(jsonDay.getInt("uvIndex"));
+            day.setHumidity(jsonDay.getDouble("humidity"));
+            day.setWindDirection(jsonDay.getDouble("windBearing"));
+            day.setWindSpeed(jsonDay.getDouble("windSpeed"));
 
             days[i] = day;
         }
@@ -313,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements
             hour.setTime(jsonHour.getLong("time"));
             hour.setTemperature(jsonHour.getDouble("temperature"));
             hour.setSummary(jsonHour.getString("summary"));
+            hour.setPrecipChance(jsonHour.getDouble("precipProbability"));
             hour.setIcon(jsonHour.getString("icon"));
 
             hours[i] = hour;
@@ -353,7 +357,8 @@ public class MainActivity extends AppCompatActivity implements
         mWindValue.setText(current.getWindSpeed() + " mph");
         mWindDirectionValue.setText(current.getWindDirection());
         mUVIndexValue.setText(current.getUVIndex() + "");
-        Drawable background = ContextCompat.getDrawable(this, mColorBook.getBackgroudId(current.getColorId()));
+        BACKGROUND_ID = mColorBook.getBackgroudId(current.getColorId());
+        Drawable background = ContextCompat.getDrawable(this, BACKGROUND_ID);
         mCurrentWeatherLayout.setBackground(background);
     }
 

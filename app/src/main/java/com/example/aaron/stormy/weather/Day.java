@@ -2,6 +2,7 @@ package com.example.aaron.stormy.weather;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.example.aaron.stormy.R;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class Day implements Parcelable{
+
     private String mIcon;
     private long mTime;
     private double mLowTemperature;
@@ -17,6 +19,10 @@ public class Day implements Parcelable{
     private double mPrecipChance;
     private String mTimeZone;
     private String mSummary;
+    private double mWindDirection;
+    private double mWindSpeed;
+    private int mUVIndex;
+    private double mHumidity;
 
     public String getIcon() {
         return mIcon;
@@ -93,6 +99,41 @@ public class Day implements Parcelable{
         return 0;
     }
 
+    public String getWindDirection() {
+        String[] dirs = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+        int index = (int) Math.round((mWindDirection % 360) / 45);
+        Log.i("WIND DIRECTION INDEX", "index is: " + index);
+        return dirs[index - 1];    }
+
+    public void setWindDirection(double windDirection) {
+        mWindDirection = windDirection;
+    }
+
+    public double getWindSpeed() {
+        return mWindSpeed;
+    }
+
+    public void setWindSpeed(double windSpeed) {
+        mWindSpeed = windSpeed;
+    }
+
+    public int getUVIndex() {
+        return mUVIndex;
+    }
+
+    public void setUVIndex(int UVIndex) {
+        mUVIndex = UVIndex;
+    }
+
+    public int getHumidity() {
+        double humidityPercentage = mHumidity * 100;
+        return (int)Math.round(humidityPercentage);
+    }
+
+    public void setHumidity(double humidity) {
+        mHumidity = humidity;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(mTime);
@@ -102,6 +143,10 @@ public class Day implements Parcelable{
         dest.writeString(mIcon);
         dest.writeString(mTimeZone);
         dest.writeDouble(mPrecipChance);
+        dest.writeDouble(mHumidity);
+        dest.writeInt(mUVIndex);
+        dest.writeDouble(mWindDirection);
+        dest.writeDouble(mWindSpeed);
     }
 
     private Day(Parcel in){
@@ -112,6 +157,10 @@ public class Day implements Parcelable{
         mIcon = in.readString();
         mTimeZone = in.readString();
         mPrecipChance = in.readDouble();
+        mHumidity = in.readDouble();
+        mUVIndex = in.readInt();
+        mWindDirection = in.readDouble();
+        mWindSpeed = in.readDouble();
     }
 
     public Day(){}
